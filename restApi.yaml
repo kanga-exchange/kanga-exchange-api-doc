@@ -1,0 +1,326 @@
+openapi: 3.0.0
+info:
+  description: A Simple API for Kanga Exchange.
+  title: KangaExchange API
+  version: v1.0
+tags:
+- name: public
+  description: Calls do not required apiKey
+- name: authorized
+  description: All calls require apiKey
+servers:
+- url: https://sb-api.kanga.exchange/api
+components:
+  schemas:
+    ResponseSimple:
+      type: object
+      properties:
+        result:
+          type: string
+          description: value ok or fail
+    MarketDef:
+      type: object
+      properties:
+        market:
+          type: string
+          description: unique name of the market build from two codes spearated by -. First code is a token code (what we buy/sell), second is currency code (how we pay) for example MYT\-ETH means this is a market where we sell or buy token MYT paying in ETH
+        singleSeller:
+          type: string
+          description: if given only this account (email id) can sell on this market (makes ASK). Default null - open to all
+        minAmoint:
+          type: string
+          description: minimum amount for quantity to make transaction
+        kyc:
+          type: boolean
+          description: is KYC required to make transactions on given market. Default FALSE
+        openining:
+          type: string
+          description: date time in format yyyy-mm-ddThh:mm:ss.mmmZ when market will be available to any customers. Default now.
+          format: yyyy-mm-ddThh:mm:ss.mmmZ
+        visibleSince:
+          type: string
+          description: date time when market should be visible.
+          format: yyyy-mm-ddThh:mm:ss.mmmZ
+      required:
+      - market
+      - minAmount
+    TokenDef:
+      type: object
+      properties:
+        code:
+          type: string
+          description: unique code name for given token (example EMT)
+        name:
+          type: string
+          description: name of the token (example easyMINE Token)
+        precision:
+          type: integer
+          description: internal precision of given token
+        address:
+          type: string
+          description: an address of contract f
+        withdraw_limit:
+          type: string
+          description: limit for single withdraw
+        daily_withdraw_limit:
+          type: string
+          description: limit for daily withdraws
+    Market:
+      type: object
+      properties:
+        id:
+          type: string
+          description: id of the market <TOKEN>-<CURRENCY>
+        lastPrice:
+          type: string
+          description: last price
+        change:
+          type: string
+          description: change from last price
+        volume:
+          type: string
+          description: volume of the market (in tokens - not currency)
+        buyer_fee:
+          type: string
+          description: not used
+        seller_fee:
+          type: string
+          description: not used
+        paying_currency:
+          type: string
+          description: code of the currency
+        buying_currency:
+          type: string
+          description: code of the token
+        min_amount:
+          type: string
+          description: minimum amount for quantity on this market
+        opening:
+          type: string
+          description: date time when market will be/was opened
+        type:
+          type: string
+          description: type of the market NORMAL, PERSONAL, SWAP, ECO
+    Currency:
+      type: object
+      properties:
+        type:
+          type: string
+          description: type of currency (TOKEN or CURRENCY)
+        code:
+          type: string
+          description: unique code name for given currency (example EMT)
+        name:
+          type: string
+          description: name of the currency (example easyMINE Token)
+        precision:
+          type: integer
+          description: internal precision of given currency
+        network:
+          type: string
+          description: name of the network (ETHER, BITCOIN, FIAT, etc.)
+        address:
+          type: string
+          description: an address of contract for tokens, otherwise empty
+        withdraw_limit:
+          type: string
+          description: limit for single withdraw
+        daily_withdraw_limit:
+          type: string
+          description: limit for daily withdraws
+  parameters:
+    apiKey:
+      name: apiKey
+      in: query
+      description: given api key
+      schema:
+        type: string
+paths:
+  /ping:
+    get:
+      tags:
+      - public
+      summary: Simple check for server avaiability
+      description: Returns basic information about version
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                    example: 3.5
+                  pong:
+                    type: boolean
+                    example: true
+  /rest/wallet/transfer:
+    post:
+      tags:
+      - authorized
+      summary: Transfer from any user accounts to other user main account
+      description: >-
+        Makes transfer from your main account or any oter account to specified
+        by email oter user account. Parameter `from` is optional. In case it's missing the transfer is from main account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apiKey:
+                  type: string
+                  description: apiKey
+                from:
+                  type: string
+                  description: optional parameter - if missing transfer is from main account
+                to:
+                  type: string
+                  description: optional parameter - if missing shihft to main account
+                currency:
+                  type: string
+                  description: currency symbol i.e. ETH, EMT,CMT etc.
+                quantity:
+                  type: string
+                  description: quantity to transfer. Max precision is 8 - depeneds on token
+      responses:
+        '200':
+          description: OK
+  /rest/wallet/shift:
+    post:
+      tags:
+      - authorized
+      summary: Transfer from any user accounts to other user main account
+      description: >-
+        Makes transfer from your main account or any oter account to specified
+        by email oter user account. Parameter `from` is optional. In case it's missing the transfer is from main account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apiKey:
+                  type: string
+                  description: apiKey
+                from:
+                  type: string
+                  description: optional parameter - if missing shhift is from main account
+                to:
+                  type: string
+                  description: optional parameter - if missing shihft to main account
+                currency:
+                  type: string
+                  description: currency symbol i.e. ETH, EMT,CMT etc.
+                quantity:
+                  type: string
+                  description: quantity to transfer. Max precision is 8 - depeneds on token
+      responses:
+        '200':
+          description: OK
+  /rest/wallet/create:
+    post:
+      tags:
+      - authorized
+      summary: Create new subwallet
+      description: Creates new wallet for given unique key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apiKey:
+                  type: string
+                  description: apiKey
+                walletKey:
+                  type: string
+                  description: unique wallet key - later id of the wallet
+      responses:
+        '200':
+          description: OK
+  /rest/token/create:
+    post:
+      tags:
+      - authorized
+      summary: New token
+      description: Creartes new token on exchange
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenDef'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+             schema:
+               $ref: '#/components/schemas/ResponseSimple'
+  /rest/personal/market/create:
+    post:
+      tags:
+      - authorized
+      summary: Creates new market.
+      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketDef'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+             schema:
+               $ref: '#/components/schemas/ResponseSimple'
+  /markets:
+    post:
+      tags:
+      - public
+      summary: List of all markets
+      description: Full definition of all markets.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: ok or fail
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Market'
+  /currencies:
+    post:
+      tags:
+      - public
+      summary: List of all currencies
+      description: Returns list of all defined currencies on exchange.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: ok or fail
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Currency'
