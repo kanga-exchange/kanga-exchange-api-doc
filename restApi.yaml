@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: A Simple API for Kanga Exchange.
+  description: A Simple REST API for Kanga Exchange.
   title: KangaExchange API
   version: v1.0
 tags:
