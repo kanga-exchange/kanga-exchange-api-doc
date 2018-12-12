@@ -268,7 +268,7 @@ paths:
       tags:
       - authorized
       summary: Creates new market.
-      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens).
+      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens). 
       requestBody:
         required: true
         content:
