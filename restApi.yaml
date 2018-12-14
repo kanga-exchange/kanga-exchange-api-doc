@@ -18,6 +18,17 @@ components:
         result:
           type: string
           description: value ok or fail
+    MarketWalletQry:
+      type: object
+      properties:
+        market:
+          type: string
+          description: name of the market for example EMT-ETH
+        walletKey:
+          type: string
+          description: name of the wallet
+      required:
+      - market
     MarketDef:
       type: object
       properties:
@@ -303,6 +314,153 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Market'
+  /rest/order/list:
+    post:
+      tags:
+      - authorized
+      description: List of all active orders for given wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketWalletQry'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+             schema:
+               type: object
+               properties:
+                 result:
+                   type: string
+                   description: ok or fail
+                 items:
+                   type: array
+                   description: list of active orders
+                   items:
+                     type: object
+                     properties:
+                       id:
+                         type: string
+                         description: id of the order
+                       type:
+                         type: string
+                         description: ASK for selling, BID for buying
+                       quantity:
+                         type: string
+                         description: quantity of buying/selling tokens
+                       remainingQuantity:
+                         type: string
+                         description: how meny tokens remain in the order
+                       price:
+                         type: string
+                         description: price for one token
+                       currentValue:
+                         type: string
+                         description: summary amount spent or received
+                       created:
+                         type: string
+                         description: create date/time
+  /rest/order/history:
+    post:
+      tags:
+      - authorized
+      description: History of orders for given wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketWalletQry'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+             schema:
+               type: object
+               properties:
+                 result:
+                   type: string
+                   description: ok or fail
+                 items:
+                   type: array
+                   description: list of orders
+                   items:
+                     type: object
+                     properties:
+                       type:
+                         type: string
+                         description: ASK for selling, BID for buying
+                       quantity:
+                         type: string
+                         description: quantity of buying/selling tokens
+                       remainingQuantity:
+                         type: string
+                         description: how meny tokens remain in the order
+                       price:
+                         type: string
+                         description: price for one token
+                       currentValue:
+                         type: string
+                         description: summary amount spent or received
+                       created:
+                         type: string
+                         description: create date/time
+                       closed:
+                         type: string
+                         description: close date/time
+                       state:
+                         type: string
+                         description: state of the order DONE, ACTIVE...
+  /rest/order/create:
+    post:
+      tags:
+      - authorized
+      description: Create new ASK or BID on given market
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                walletKey:
+                  type: string
+                  description: wallet name
+                type:
+                  type: string
+                  description: ASK for selling, BID for buying
+                quantity:
+                  type: string
+                  description: quantity of buying/selling tokens
+                price:
+                  type: string
+                  description: price for one token
+                market:
+                  type: string
+                  description: name of the market
+              required:
+              - type
+              - quantity
+              - price
+              - market
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+             schema:
+               type: object
+               properties:
+                 result:
+                   type: string
+                   description: ok or fail
+                 orderId:
+                   type: string
+                   description: unique id of the new order
   /currencies:
     post:
       tags:
