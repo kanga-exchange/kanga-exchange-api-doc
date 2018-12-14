@@ -367,7 +367,7 @@ paths:
     post:
       tags:
       - authorized
-      description: History of orders for given wallet
+      description: History of orders for given wallet (all closed orders). Max 50 items.
       requestBody:
         required: true
         content:
@@ -414,7 +414,7 @@ paths:
                          description: close date/time
                        state:
                          type: string
-                         description: state of the order DONE, ACTIVE...
+                         description: state of the order DONE or CANCELED
   /rest/order/create:
     post:
       tags:
