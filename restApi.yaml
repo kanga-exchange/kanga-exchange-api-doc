@@ -112,6 +112,18 @@ components:
         type:
           type: string
           description: type of the market NORMAL, PERSONAL, SWAP, ECO
+    Wallet:
+      type: object
+      properties:
+        currencyCode:
+          type: string
+          description: code name of the currency (example EMT)
+        value:
+          type: string
+          description: available amount
+        lockedValue:
+          type: string
+          description: amount locked (for orders, withdraws, etc.)
     Currency:
       type: object
       properties:
@@ -251,10 +263,43 @@ paths:
                   description: apiKey
                 walletKey:
                   type: string
-                  description: unique wallet key - later id of the wallet
+                  description: unique wallet key
       responses:
         '200':
           description: OK
+  /rest/wallet:
+    post:
+      tags:
+      - authorized
+      description: Wallet states for all defined currencies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apiKey:
+                  type: string
+                  description: apiKey
+                walletKey:
+                  type: string
+                  description: unique wallet key, if missing then main wallet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    description: ok or fail
+                  wallets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Wallet'
   /rest/token/create:
     post:
       tags:
