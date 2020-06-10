@@ -9,7 +9,7 @@ tags:
 - name: authorized
   description: All calls require apiKey
 servers:
-- url: https://sb-api.kanga.exchange/api
+- url: https://api.kanga.exchange/api
 components:
   schemas:
     ResponseSimple:
@@ -187,6 +187,7 @@ paths:
       description: >-
         Makes transfer from your main account or any oter account to specified
         by email oter user account. Parameter `from` is optional. In case it's missing the transfer is from main account.
+        Returns ok when operation succeded or fail with code number.
       requestBody:
         required: true
         content:
@@ -210,8 +211,38 @@ paths:
                   type: string
                   description: quantity to transfer. Max precision is 8 - depeneds on token
       responses:
+        '401':
+          description: FAIL
         '200':
           description: OK
+          content:
+            application/json:
+                schema:
+                  oneOf:
+                    - schema:
+                      type: object
+                      properties:
+                        result:
+                          type: string
+                          description: value ok - transfer completed
+                    - schema:
+                      type: object
+                      properties:
+                        result:
+                          type: string
+                          description: value fail
+                        code:
+                          type: integer
+                          description: 1101 - bad credentials
+                    - schema:
+                      type: object
+                      properties:
+                        result:
+                          type: string
+                          description: value fail
+                        code:
+                          type: integer
+                          description: 1901 - bad parameters
   /rest/wallet/shift:
     post:
       tags:
@@ -324,7 +355,7 @@ paths:
       tags:
       - authorized
       summary: Creates new market.
-      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens). 
+      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens).
       requestBody:
         required: true
         content:
