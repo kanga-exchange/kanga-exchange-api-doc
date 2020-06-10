@@ -224,24 +224,29 @@ paths:
                       properties:
                         result:
                           type: string
+                          enum: [ok]
                           description: value ok - transfer completed
                     - schema:
                       type: object
                       properties:
                         result:
                           type: string
+                          enum: [fail]
                           description: value fail
                         code:
                           type: integer
+                          enum: [1101]
                           description: 1101 - bad credentials
                     - schema:
                       type: object
                       properties:
                         result:
                           type: string
-                          value: fail
+                          enum: [fail]
+                          description: value fail
                         code:
                           type: integer
+                          enum: [1901]
                           description: 1901 - bad parameters
   /rest/wallet/shift:
     post:
