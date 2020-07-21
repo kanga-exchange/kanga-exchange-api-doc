@@ -1,193 +1,43 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  description: A Simple REST API for Kanga Exchange.
-  title: KangaExchange API
-  version: v1.0
-tags:
-- name: public
-  description: Calls do not required apiKey
-- name: authorized
-  description: All calls require apiKey
-servers:
-- url: https://api.kanga.exchange/api
+  description: This is API generated from kanga.exchange code.
+  version: 1.0.0
+  title: Kanga.exchange API
+  termsOfService: 'http://kanga.exchange'
+  contact:
+    email: support@kanga.exchange
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 components:
-  schemas:
-    ResponseSimple:
-      type: object
-      properties:
-        result:
-          type: string
-          description: value ok or fail
-    MarketWalletQry:
-      type: object
-      properties:
-        market:
-          type: string
-          description: name of the market for example EMT-ETH
-        walletKey:
-          type: string
-          description: name of the wallet
-      required:
-      - market
-    MarketDef:
-      type: object
-      properties:
-        market:
-          type: string
-          description: unique name of the market build from two codes spearated by -. First code is a token code (what we buy/sell), second is currency code (how we pay) for example MYT\-ETH means this is a market where we sell or buy token MYT paying in ETH
-        singleSeller:
-          type: string
-          description: if given only this account (email id) can sell on this market (makes ASK). Default null - open to all
-        minAmoint:
-          type: string
-          description: minimum amount for quantity to make transaction
-        kyc:
-          type: boolean
-          description: is KYC required to make transactions on given market. Default FALSE
-        openining:
-          type: string
-          description: date time in format yyyy-mm-ddThh:mm:ss.mmmZ when market will be available to any customers. Default now.
-          format: yyyy-mm-ddThh:mm:ss.mmmZ
-        visibleSince:
-          type: string
-          description: date time when market should be visible.
-          format: yyyy-mm-ddThh:mm:ss.mmmZ
-      required:
-      - market
-      - minAmount
-    TokenDef:
-      type: object
-      properties:
-        code:
-          type: string
-          description: unique code name for given token (example EMT)
-        name:
-          type: string
-          description: name of the token (example easyMINE Token)
-        precision:
-          type: integer
-          description: internal precision of given token
-        address:
-          type: string
-          description: an address of contract f
-        withdraw_limit:
-          type: string
-          description: limit for single withdraw
-        daily_withdraw_limit:
-          type: string
-          description: limit for daily withdraws
-    Market:
-      type: object
-      properties:
-        id:
-          type: string
-          description: id of the market <TOKEN>-<CURRENCY>
-        lastPrice:
-          type: string
-          description: last price
-        change:
-          type: string
-          description: change from last price
-        volume:
-          type: string
-          description: volume of the market (in tokens - not currency)
-        buyer_fee:
-          type: string
-          description: not used
-        seller_fee:
-          type: string
-          description: not used
-        paying_currency:
-          type: string
-          description: code of the currency
-        buying_currency:
-          type: string
-          description: code of the token
-        min_amount:
-          type: string
-          description: minimum amount for quantity on this market
-        opening:
-          type: string
-          description: date time when market will be/was opened
-        type:
-          type: string
-          description: type of the market NORMAL, PERSONAL, SWAP, ECO
-    Wallet:
-      type: object
-      properties:
-        currencyCode:
-          type: string
-          description: code name of the currency (example EMT)
-        value:
-          type: string
-          description: available amount
-        lockedValue:
-          type: string
-          description: amount locked (for orders, withdraws, etc.)
-    Currency:
-      type: object
-      properties:
-        type:
-          type: string
-          description: type of currency (TOKEN or CURRENCY)
-        code:
-          type: string
-          description: unique code name for given currency (example EMT)
-        name:
-          type: string
-          description: name of the currency (example easyMINE Token)
-        precision:
-          type: integer
-          description: internal precision of given currency
-        network:
-          type: string
-          description: name of the network (ETHER, BITCOIN, FIAT, etc.)
-        address:
-          type: string
-          description: an address of contract for tokens, otherwise empty
-        withdraw_limit:
-          type: string
-          description: limit for single withdraw
-        daily_withdraw_limit:
-          type: string
-          description: limit for daily withdraws
-  parameters:
-    apiKey:
-      name: apiKey
-      in: query
-      description: given api key
-      schema:
-        type: string
+  securitySchemes:
+    SignatureAuth:
+      type: apiKey
+      in: header
+      name: api-sig
+      description: Signed payload with your private key using sha512 hashing function (HMAC_SHA512).
+    AdminAuth:
+      type: apiKey
+      in: header
+      name: auth
+      description: Valid ADMIN session required to perform this call.
+    UserAuth:
+      type: apiKey
+      in: header
+      name: auth
+      description: Valid USER session required to perform this call.
+servers:
+  - url: 'https://kanga.exchange'
+    description: Production
 paths:
-  /ping:
-    get:
-      tags:
-      - public
-      summary: Simple check for server avaiability
-      description: Returns basic information about version
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                    example: 3.5
-                  pong:
-                    type: boolean
-                    example: true
-  /rest/wallet/transfer:
+  /api/admin/market/ticker/add:
     post:
       tags:
-      - authorized
-      summary: Transfer from any user accounts to other user main account
-      description: >-
-        Makes transfer from your main account or any oter account to specified
-        by email oter user account. Parameter `from` is optional. In case it's missing the transfer is from main account.
-        Returns ok when operation succeded or fail with code number.
+        - Market
+      summary: Add market as a ticker
+      description: Saves market for future price monitoring and ticker list in mobile app.
+      security:
+        - AdminAuth: []
       requestBody:
         required: true
         content:
@@ -195,362 +45,127 @@ paths:
             schema:
               type: object
               properties:
-                apiKey:
+                marketId:
                   type: string
-                  description: apiKey
-                from:
-                  type: string
-                  description: optional parameter - if missing transfer is from main account
-                to:
-                  type: string
-                  description: optional parameter - if missing shihft to main account
-                currency:
-                  type: string
-                  description: currency symbol i.e. ETH, EMT,CMT etc.
-                quantity:
-                  type: string
-                  description: quantity to transfer. Max precision is 8 - depeneds on token
-      responses:
-        '401':
-          description: FAIL
-        '200':
-          description: OK
-          content:
-            application/json:
-                schema:
-                  oneOf:
-                    - schema:
-                      type: object
-                      properties:
-                        result:
-                          type: string
-                          enum: [ok]
-                          description: value ok - transfer completed
-                    - schema:
-                      type: object
-                      properties:
-                        result:
-                          type: string
-                          enum: [fail]
-                          description: value fail
-                        code:
-                          type: integer
-                          enum: [1101]
-                          description: 1101 - bad credentials
-                    - schema:
-                      type: object
-                      properties:
-                        result:
-                          type: string
-                          enum: [fail]
-                          description: value fail
-                        code:
-                          type: integer
-                          enum: [1901]
-                          description: 1901 - bad parameters
-  /rest/wallet/shift:
-    post:
-      tags:
-      - authorized
-      summary: Transfer from any user accounts to other user main account
-      description: >-
-        Makes transfer from your main account or any oter account to specified
-        by email oter user account. Parameter `from` is optional. In case it's missing the transfer is from main account.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                apiKey:
-                  type: string
-                  description: apiKey
-                from:
-                  type: string
-                  description: optional parameter - if missing shhift is from main account
-                to:
-                  type: string
-                  description: optional parameter - if missing shihft to main account
-                currency:
-                  type: string
-                  description: currency symbol i.e. ETH, EMT,CMT etc.
-                quantity:
-                  type: string
-                  description: quantity to transfer. Max precision is 8 - depeneds on token
-      responses:
-        '200':
-          description: OK
-  /rest/wallet/create:
-    post:
-      tags:
-      - authorized
-      summary: Create new subwallet
-      description: Creates new wallet for given unique key
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                apiKey:
-                  type: string
-                  description: apiKey
-                walletKey:
-                  type: string
-                  description: unique wallet key
-      responses:
-        '200':
-          description: OK
-  /rest/wallet:
-    post:
-      tags:
-      - authorized
-      description: Wallet states for all defined currencies
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                apiKey:
-                  type: string
-                  description: apiKey
-                walletKey:
-                  type: string
-                  description: unique wallet key, if missing then main wallet
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: string
-                    description: ok or fail
-                  wallets:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Wallet'
-  /rest/token/create:
-    post:
-      tags:
-      - authorized
-      summary: New token
-      description: Creartes new token on exchange
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TokenDef'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-             schema:
-               $ref: '#/components/schemas/ResponseSimple'
-  /rest/personal/market/create:
-    post:
-      tags:
-      - authorized
-      summary: Creates new market.
-      description: New market has to be defined by unique name (market) <TOKEN-CODE>-<CURRENCY-CODE>. Market is type of personal (dedicated for personal tokens).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MarketDef'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-             schema:
-               $ref: '#/components/schemas/ResponseSimple'
-  /markets:
-    post:
-      tags:
-      - public
-      summary: List of all markets
-      description: Full definition of all markets.
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  result:
-                    type: string
-                    description: ok or fail
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Market'
-  /rest/order/list:
-    post:
-      tags:
-      - authorized
-      description: List of all active orders for given wallet
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MarketWalletQry'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-             schema:
-               type: object
-               properties:
-                 result:
-                   type: string
-                   description: ok or fail
-                 items:
-                   type: array
-                   description: list of active orders
-                   items:
-                     type: object
-                     properties:
-                       id:
-                         type: string
-                         description: id of the order
-                       type:
-                         type: string
-                         description: ASK for selling, BID for buying
-                       quantity:
-                         type: string
-                         description: quantity of buying/selling tokens
-                       remainingQuantity:
-                         type: string
-                         description: how meny tokens remain in the order
-                       price:
-                         type: string
-                         description: price for one token
-                       currentValue:
-                         type: string
-                         description: summary amount spent or received
-                       created:
-                         type: string
-                         description: create date/time
-  /rest/order/history:
-    post:
-      tags:
-      - authorized
-      description: History of orders for given wallet (all closed orders). Max 50 items.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MarketWalletQry'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-             schema:
-               type: object
-               properties:
-                 result:
-                   type: string
-                   description: ok or fail
-                 items:
-                   type: array
-                   description: list of orders
-                   items:
-                     type: object
-                     properties:
-                       type:
-                         type: string
-                         description: ASK for selling, BID for buying
-                       quantity:
-                         type: string
-                         description: quantity of buying/selling tokens
-                       remainingQuantity:
-                         type: string
-                         description: how meny tokens remain in the order
-                       price:
-                         type: string
-                         description: price for one token
-                       currentValue:
-                         type: string
-                         description: summary amount spent or received
-                       created:
-                         type: string
-                         description: create date/time
-                       closed:
-                         type: string
-                         description: close date/time
-                       state:
-                         type: string
-                         description: state of the order DONE or CANCELED
-  /rest/order/create:
-    post:
-      tags:
-      - authorized
-      description: Create new ASK or BID on given market
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                walletKey:
-                  type: string
-                  description: wallet name
-                type:
-                  type: string
-                  description: ASK for selling, BID for buying
-                quantity:
-                  type: string
-                  description: quantity of buying/selling tokens
-                price:
-                  type: string
-                  description: price for one token
-                market:
-                  type: string
-                  description: name of the market
+                  format: string
               required:
-              - type
-              - quantity
-              - price
-              - market
+                - marketId
       responses:
         '200':
-          description: OK
+          description: Response
           content:
             application/json:
-             schema:
-               type: object
-               properties:
-                 result:
-                   type: string
-                   description: ok or fail
-                 orderId:
-                   type: string
-                   description: unique id of the new order
-  /currencies:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                    required:
+                      - result
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                      code:
+                        type: integer
+                        format: int64
+                        enum:
+                          - 9001
+                    required:
+                      - result
+                      - code
+                    description: Market does not exist
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                      code:
+                        type: integer
+                        format: int64
+                        enum:
+                          - 9001
+                    required:
+                      - result
+                      - code
+                    description: Market already added
+  /api/admin/market/ticker/remove:
     post:
       tags:
-      - public
-      summary: List of all currencies
-      description: Returns list of all defined currencies on exchange.
+        - Market
+      summary: Remove ticker
+      description: Reoves market from defined ticker list.
+      security:
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                marketId:
+                  type: string
+                  format: string
+                  enum:
+                    - fail
+              required:
+                - marketId
       responses:
         '200':
-          description: OK
+          description: Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                    required:
+                      - result
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                      code:
+                        type: integer
+                        format: int64
+                        enum:
+                          - 9000
+                    required:
+                      - result
+                      - code
+                    description: Market does not exist
+  /api/market/ticker/list:
+    post:
+      tags:
+        - Market
+      summary: Market tickers list
+      description: Returns a list of market tickers defined.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {}
+      responses:
+        '200':
+          description: Response
           content:
             application/json:
               schema:
@@ -558,8 +173,509 @@ paths:
                 properties:
                   result:
                     type: string
-                    description: ok or fail
+                    format: string
+                    enum:
+                      - ok
                   items:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Currency'
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        price:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        change:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        changeQuantity:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        buyingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        payingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                      required:
+                        - id
+                        - buyingCurrency
+                        - payingCurrency
+                required:
+                  - result
+                  - items
+  /api/market/changes/list:
+    post:
+      tags:
+        - Market
+      summary: Returns market changes.
+      description: Returns changes on markets that are incremented periodically in cache.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {}
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    format: string
+                    enum:
+                      - ok
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        marketId:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        price:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        minPrice:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        maxPrice:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        volume:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        volume24:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        weeklyVolume:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        monthlyVolume:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        change:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        changeQuantity:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                      required:
+                        - marketId
+                required:
+                  - result
+                  - items
+  /api/user/market/transactions/list:
+    post:
+      tags:
+        - Transactions
+      summary: User transaction list.
+      description: Returns user transactions for given dates.
+      security:
+        - UserAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromDate:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+                toDate:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+              required: []
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    format: string
+                    enum:
+                      - ok
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        marketId:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        payingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        buyingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        price:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        quantity:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        value:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        state:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        side:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        matchType:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        created:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                      required:
+                        - type
+                        - marketId
+                        - payingCurrency
+                        - buyingCurrency
+                        - price
+                        - quantity
+                        - value
+                        - state
+                        - side
+                        - matchType
+                        - created
+                required:
+                  - result
+                  - list
+  /api/admin/market/transactions/list:
+    post:
+      tags:
+        - Transactions
+      summary: User transaction list.
+      description: Returns user transactions for given dates.
+      security:
+        - AdminAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+                fromDate:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+                toDate:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+                distinctUsers:
+                  type: boolean
+                  format: boolean
+              required:
+                - userId
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                    format: string
+                    enum:
+                      - ok
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        marketId:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        payingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        buyingCurrency:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        price:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        quantity:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        value:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        state:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        side:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        matchType:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                        created:
+                          type: string
+                          format: string
+                          enum:
+                            - ok
+                      required:
+                        - type
+                        - marketId
+                        - payingCurrency
+                        - buyingCurrency
+                        - price
+                        - quantity
+                        - value
+                        - state
+                        - side
+                        - matchType
+                        - created
+                required:
+                  - result
+                  - list
+  /api/fcm/send:
+    post:
+      tags:
+        - FCM
+      summary: Sends a message to registered device
+      description: Open handler that will send any message to specified recipient. Handler is open as it is impossible to generate proper token for this FCM server.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipient:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+                message:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      format: string
+                      enum:
+                        - ok
+                    content:
+                      type: string
+                      format: string
+                      enum:
+                        - ok
+                  required:
+                    - title
+                    - content
+                app:
+                  type: string
+                  format: string
+                  enum:
+                    - ok
+              required:
+                - recipient
+                - message
+                - app
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                    required:
+                      - result
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                      code:
+                        type: integer
+                        format: int64
+                        enum:
+                          - 9000
+                    required:
+                      - result
+                      - code
+                    description: Recipient not connected
+  /api/user/fcm/token/register:
+    post:
+      tags:
+        - FCM
+      summary: Registers device token for user
+      description: This handler will register device FCM token so it can be used for sending push notifications from the cloud.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fcmToken:
+                  type: string
+                  format: string
+                  enum:
+                    - fail
+                app:
+                  type: string
+                  format: string
+                  enum:
+                    - fail
+                deviceToken:
+                  type: string
+                  format: string
+                  enum:
+                    - fail
+              required:
+                - fcmToken
+                - app
+                - deviceToken
+      responses:
+        '200':
+          description: Response
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                    required:
+                      - result
+                  - type: object
+                    properties:
+                      result:
+                        type: string
+                        format: string
+                        enum:
+                          - fail
+                      code:
+                        type: integer
+                        format: int64
+                        enum:
+                          - 9000
+                    required:
+                      - result
+                      - code
+                    description: No app found
+tags: []
