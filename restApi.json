@@ -1,0 +1,1046 @@
+
+Dashboard
+Wallet Report
+Manage KYC
+Postponed KYC list
+All users
+Pending withdrawals
+Currencies
+Markets
+IEO
+STO
+STO applicatons
+System wallets
+Reports
+TPG user authorization
+Export mailing list
+Pending TPG
+Apps
+Special
+Sign out
+
+Generate API
+
+INTERNAL
+
+EXTERNAL
+
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "This is API generated from kanga.exchange code.",
+    "version": "1.0.0",
+    "title": "Kanga.exchange API",
+    "termsOfService": "http://kanga.exchange",
+    "contact": {
+      "email": "support@kanga.exchange"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "SignatureAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "api-sig",
+        "description": "Signed payload with your private key using sha512 hashing function (HMAC_SHA512)."
+      },
+      "AdminAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "auth",
+        "description": "Valid ADMIN session required to perform this call."
+      },
+      "UserAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "auth",
+        "description": "Valid USER session required to perform this call."
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://kanga.exchange",
+      "description": "Production"
+    }
+  ],
+  "paths": {
+    "/api/admin/market/ticker/add": {
+      "post": {
+        "tags": [
+          "Market"
+        ],
+        "summary": "Add market as a ticker",
+        "description": "Saves market for future price monitoring and ticker list in mobile app.",
+        "security": [
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "marketId": {
+                    "type": "string",
+                    "format": "string"
+                  }
+                },
+                "required": [
+                  "marketId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9001
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "Market does not exist"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9001
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "Market already added"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/market/ticker/remove": {
+      "post": {
+        "tags": [
+          "Market"
+        ],
+        "summary": "Remove ticker",
+        "description": "Reoves market from defined ticker list.",
+        "security": [
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "marketId": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  }
+                },
+                "required": [
+                  "marketId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9000
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "Market does not exist"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/market/ticker/list": {
+      "post": {
+        "tags": [
+          "Market"
+        ],
+        "summary": "Market tickers list",
+        "description": "Returns a list of market tickers defined.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "format": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "price": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "change": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "changeQuantity": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "buyingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "payingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "buyingCurrency",
+                          "payingCurrency"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "items"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/market/changes/list": {
+      "post": {
+        "tags": [
+          "Market"
+        ],
+        "summary": "Returns market changes.",
+        "description": "Returns changes on markets that are incremented periodically in cache.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "format": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "marketId": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "price": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "minPrice": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "maxPrice": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "volume": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "volume24": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "weeklyVolume": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "monthlyVolume": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "change": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "changeQuantity": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "marketId"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "items"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/market/transactions/list": {
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "User transaction list.",
+        "description": "Returns user transactions for given dates.",
+        "security": [
+          {
+            "UserAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fromDate": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  },
+                  "toDate": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "format": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "marketId": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "payingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "buyingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "price": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "quantity": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "state": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "side": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "matchType": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "created": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "marketId",
+                          "payingCurrency",
+                          "buyingCurrency",
+                          "price",
+                          "quantity",
+                          "value",
+                          "state",
+                          "side",
+                          "matchType",
+                          "created"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "list"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/market/transactions/list": {
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "User transaction list.",
+        "description": "Returns user transactions for given dates.",
+        "security": [
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  },
+                  "fromDate": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  },
+                  "toDate": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  },
+                  "distinctUsers": {
+                    "type": "boolean",
+                    "format": "boolean"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "format": "string",
+                      "enum": [
+                        "ok"
+                      ]
+                    },
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "marketId": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "payingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "buyingCurrency": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "price": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "quantity": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "state": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "side": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "matchType": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          },
+                          "created": {
+                            "type": "string",
+                            "format": "string",
+                            "enum": [
+                              "ok"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "marketId",
+                          "payingCurrency",
+                          "buyingCurrency",
+                          "price",
+                          "quantity",
+                          "value",
+                          "state",
+                          "side",
+                          "matchType",
+                          "created"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "list"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fcm/send": {
+      "post": {
+        "tags": [
+          "FCM"
+        ],
+        "summary": "Sends a message to registered device",
+        "description": "Open handler that will send any message to specified recipient. Handler is open as it is impossible to generate proper token for this FCM server.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recipient": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  },
+                  "message": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "format": "string",
+                        "enum": [
+                          "ok"
+                        ]
+                      },
+                      "content": {
+                        "type": "string",
+                        "format": "string",
+                        "enum": [
+                          "ok"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "title",
+                      "content"
+                    ]
+                  },
+                  "app": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "ok"
+                    ]
+                  }
+                },
+                "required": [
+                  "recipient",
+                  "message",
+                  "app"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9000
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "Recipient not connected"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/fcm/token/register": {
+      "post": {
+        "tags": [
+          "FCM"
+        ],
+        "summary": "Registers device token for user",
+        "description": "This handler will register device FCM token so it can be used for sending push notifications from the cloud.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fcmToken": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  },
+                  "app": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  },
+                  "deviceToken": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  }
+                },
+                "required": [
+                  "fcmToken",
+                  "app",
+                  "deviceToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9000
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "No app found"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
