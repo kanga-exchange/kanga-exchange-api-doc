@@ -4,7 +4,7 @@
     "description": "This is API generated from kanga.exchange code.",
     "version": "1.0.0",
     "title": "Kanga.exchange API",
-    "termsOfService": "http://kanga.dev",
+    "termsOfService": "http://kanga.exchange",
     "contact": {
       "email": "support@kanga.exchange"
     },
@@ -37,104 +37,12 @@
   },
   "servers": [
     {
-      "url": "https://kanga.dev",
-      "description": "Sandbox"
+      "url": "https://kanga.exchange",
+      "description": "Production"
     }
   ],
   "paths": {
-    "/api/rest/wallet/list": {
-      "post": {
-        "tags": [
-          "wallet"
-        ],
-        "summary": "List of all sub-accounts",
-        "description": "List of all subaccounts",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "apiKey": {
-                    "type": "string",
-                    "format": "string",
-                    "enum": [
-                      "fail"
-                    ]
-                  }
-                },
-                "required": [
-                  "apiKey"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "object",
-                      "properties": {
-                        "result": {
-                          "type": "string",
-                          "format": "string",
-                          "enum": [
-                            "ok"
-                          ]
-                        },
-                        "walletKeys": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "format": "string",
-                            "enum": [
-                              "ok"
-                            ]
-                          }
-                        }
-                      },
-                      "required": [
-                        "result",
-                        "walletKeys"
-                      ]
-                    },
-                    {
-                      "type": "object",
-                      "properties": {
-                        "result": {
-                          "type": "string",
-                          "format": "string",
-                          "enum": [
-                            "fail"
-                          ]
-                        },
-                        "code": {
-                          "type": "integer",
-                          "format": "int64",
-                          "enum": [
-                            9002
-                          ]
-                        }
-                      },
-                      "required": [
-                        "result"
-                      ]
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/rest/wallet": {
+    "/api/v2/wallet/list": {
       "post": {
         "tags": [
           "wallet"
@@ -148,7 +56,28 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "apiKey": {
+                  "nonce": {
+                    "type": "integer",
+                    "format": "int64",
+                    "enum": [
+                      9002
+                    ]
+                  },
+                  "appId": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  },
+                  "__rawBody__": {
+                    "type": "string",
+                    "format": "string",
+                    "enum": [
+                      "fail"
+                    ]
+                  },
+                  "__apiSig__": {
                     "type": "string",
                     "format": "string",
                     "enum": [
@@ -164,7 +93,10 @@
                   }
                 },
                 "required": [
-                  "apiKey"
+                  "nonce",
+                  "appId",
+                  "__rawBody__",
+                  "__apiSig__"
                 ]
               }
             }
@@ -248,13 +180,63 @@
                           "type": "integer",
                           "format": "int64",
                           "enum": [
+                            9000
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "Signature invalid"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
+                            9001
+                          ]
+                        }
+                      },
+                      "required": [
+                        "result",
+                        "code"
+                      ],
+                      "description": "No permissions for app"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "result": {
+                          "type": "string",
+                          "format": "string",
+                          "enum": [
+                            "fail"
+                          ]
+                        },
+                        "code": {
+                          "type": "integer",
+                          "format": "int64",
+                          "enum": [
                             9002
                           ]
                         }
                       },
                       "required": [
-                        "result"
-                      ]
+                        "result",
+                        "code"
+                      ],
+                      "description": "Wrong wallet key"
                     }
                   ]
                 }
@@ -2171,7 +2153,7 @@
           }
         }
       }
-    }
+    },
   },
   "tags": []
 }
